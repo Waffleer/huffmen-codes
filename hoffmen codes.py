@@ -38,13 +38,38 @@ def fileToText(path: str) -> str:
 
 def doubleChartoWeight(text: str) -> dict:
     weights = {}
-    for x in text: #Gets weights for single value 
-        if(x in weights.keys()):
-            weights.update({x: weights[x]+1})
-        else:
-            weights.update({x: 1})
-    return weights
+    check = ""
+    cycle = ""
+    for x in range(1,len(text)):
+        check = text[x-1] + text[x]
+        if(check in weights.keys()): #makes sure their isn't a double check
+            continue
+        for y in range(1,len(text)):
+            cycle = text[y-1] + text[y]
+            if(check == cycle):
+                if(check in weights.keys()):
+                    weights.update({check: weights[check]+1})
+                else:
+                    weights.update({check: 1})
 
+    if(not len(text)%2 == 0): #if their is an odd number of characters then their will be on with no pair
+        weights.update({text[-1]: 1})
+
+    # extrastr = ""
+    # c=1
+    # print(weights.keys())
+
+    # while(c < len(text)):
+    #     if()
+    #     check = text[c-1] + text[c]
+        
+    #     if(check in list(weights.keys())):
+    #         c = c+2
+    #     else:
+    #         extrastr = extrastr + text[c]
+    #         c = c+1
+    #     print(f"c: {c} | check: {check} | extrastr: {extrastr}")
+    return weights
 def singleChartoWeight(text: str) -> dict:
     weights = {}
     for x in text: #Gets weights for single value 
@@ -53,6 +78,7 @@ def singleChartoWeight(text: str) -> dict:
         else:
             weights.update({x: 1})
     return weights
+
 
 def weightsToNodes(weights: dict) -> list:
     nodes = []
@@ -113,33 +139,74 @@ def navigate(node: Node, running: str, ret: dict):
         navigate(node.left,r1,ret)
         navigate(node.right,r2,ret)
 
-def encodeToFile(encodeKey: dict, text: str, filePath: str) -> None:
-    f = open(f"{filePath}-encoded.txt", "w")
 
-    f.write(str(encodeKey))
-    f.write("\n\n")
+def encodeToFileSingle(encodeKey: dict, text: str, filePath: str) -> None:
+
+
+    writeStr = ""
+    
 
     for x in text:
-        f.write(encodeKey[x])
+        writeStr = writeStr + encodeKey[x]
+    print(f"Lenght: {len(writeStr)}")
+    f = open(f"{filePath}-encoded.txt", "w")
+    f.write(str(encodeKey))
+    f.write("\n\n")
+    f.write(writeStr)
     f.close
-#print(tree)
+def encodeToFileDouble(encodeKey: dict, text: str, filePath: str) -> None:
+    
+    usedEncode = {}
+    writeStr = ""
+    for c in range(1,len(text),2):
+        check = text[c-1] + text[c]
+        writeStr = writeStr + encodeKey[check]
+        usedEncode.update({check: encodeKey[check]})
+        #print(f"c: {c} | check: {check}")
+    if(not len(text)%2 == 0):
+        writeStr = writeStr + encodeKey[text[-1]]
+        usedEncode.update({text[-1]: encodeKey[text[-1]]})
+
+    print(f"Length: {len(writeStr)}")
+
+    f = open(f"{filePath}-encoded.txt", "w")
+    f.write(str(usedEncode))
+    f.write("\n\n")
+    f.write(writeStr)
+    f.close()
 
 def singleCharEncode(filePath: str):
     text = fileToText(filePath)
     weights = singleChartoWeight(text)
-    print(f"Weights:  {weights}")
+    #print(f"Weights:  {weights}")
     encodeKey = {}
     navigate(huffmaneImplementation(weightsToNodes(weights)),"",encodeKey)
-    encodeToFile(encodeKey,text,filePath)
-    print(f"EncodeKey:  {encodeKey}")
+    encodeToFileSingle(encodeKey,text,filePath)
+    #print(f"EncodeKey:  {encodeKey}")
 
 def doubleCharEncode(filePath: str):
     text = fileToText(filePath)
     weights = doubleChartoWeight(text)
-    print(f"Weights:  {weights}")
+    #print(f"Weights:  {weights}")
     encodeKey = {}
     navigate(huffmaneImplementation(weightsToNodes(weights)),"",encodeKey)
-    encodeToFile(encodeKey,text,filePath)
-    print(f"EncodeKey:  {encodeKey}")
+    encodeToFileDouble(encodeKey,text,filePath)
+    #print(f"EncodeKey:  {encodeKey}")
 
-singleCharEncode("IHaveADream")
+def examine(filePath:str):
+    print(f"Text ascii {len(fileToText(filePath)) * 7}bits")
+
+    print("Single Encode ",end="")
+    singleCharEncode(filePath) 
+    print("Pair Encode ",end="")
+    doubleCharEncode(filePath)
+
+examine("test")
+
+#Manifesto of the Communist Party
+#Total Chars 216897 * 7bit ascii encoding = 1518279 bits
+#Single Char encoding 978666
+#Pair Char Encoding 863588
+# 1518279
+#  978666
+#  863588
