@@ -194,14 +194,16 @@ def doubleCharEncode(filePath: str):
     #print(f"EncodeKey:  {encodeKey}")
 
 def examine(filePath:str):
+    print("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
     print(f"Text ascii {len(fileToText(filePath)) * 7}bits")
-
     print("Single Encode ",end="")
     singleCharEncode(filePath) 
     print("Pair Encode ",end="")
     doubleCharEncode(filePath)
 
-examine("test")
+examine("BeeScript")
+examine("IHaveADream")
+examine("Manifesto of the Communist Party")
 
 #Manifesto of the Communist Party
 #Total Chars 216897 * 7bit ascii encoding = 1518279 bits
